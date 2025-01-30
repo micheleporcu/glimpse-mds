@@ -127,11 +127,14 @@ def main():
     output_path = Path(args.output_dir) / f"{args.summaries.stem}-_-r3-_-rsa_reranked-{args.model_name.replace('/', '-')}.json"
 
     for k, v in results.items():
+        print("Lettura di results")
         print(k, type(v), v)
-    
+        
+    '''
     with open(output_path, "w") as f:
         json.dump(results, f, indent=4)
-        
+    '''
+    
     # in case of scripted run, print the output path
     if args.scripted_run: print(output_path)
 
