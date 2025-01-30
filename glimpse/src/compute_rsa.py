@@ -126,7 +126,7 @@ def main():
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     output_path = Path(args.output_dir) / f"{args.summaries.stem}-_-r3-_-rsa_reranked-{args.model_name.replace('/', '-')}.json"
 
-    for k, v in results[0]:
+    for k, v in results.items():
         print(k, type(v), v)
     
     with open(output_path, "w") as f:
