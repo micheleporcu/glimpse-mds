@@ -5,8 +5,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, PegasusTokenizer
 import argparse
 from tqdm import tqdm
 
-from pickle import dump
-
+import json
 import sys, os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
@@ -14,7 +13,7 @@ from rsasumm.rsa_reranker import RSAReranking
 
 
 DESC = """
-Compute the RSA matrices for all the set of multi-document samples and dump these along with additional information in a pickle file.
+Compute the RSA matrices for all the set of multi-document samples and dump these along with additional information in a JSON file.
 """
 
 def parse_args():
@@ -81,15 +80,15 @@ def compute_rsa(summaries: pd.DataFrame, model, tokenizer, device):
                 "id": name,
                 "best_rsa": best_rsa,  # best speaker score
                 "best_base": best_base,  # naive baseline
-                "speaker_df": speaker_df,  # all speaker results
-                "listener_df": listener_df,  # all listener results (chances of guessing correctly)
+                "speaker_df": speaker_df.to_dict(),  # all speaker results
+                "listener_df": listener_df.to_dict(),  # all listener results (chances of guessing correctly)
                 "initial_listener": initial_listener,
-                "language_model_proba_df": language_model_proba_df,
+                "language_model_proba_df": language_model_proba_df.to_dict(),
                 "initial_consensuality_scores": initial_consensuality_scores,
                 "consensuality_scores": consensuality_scores,  # uniqueness scores
                 "gold": gold,
                 "rationality": 3,  # hyperparameter
-                "text_candidates" : group
+                "text_candidates" : group.to_dict()
             }
         )
 
@@ -125,13 +124,10 @@ def main():
     # save the summaries
     # make the output directory if it does not exist
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    output_path = Path(args.output_dir) / f"{args.summaries.stem}-_-r3-_-rsa_reranked-{args.model_name.replace('/', '-')}.pk"
-    output_path_base = (
-        Path(args.output_dir) / f"{args.summaries.stem}-_-base_reranked.pk"
-    )
+    output_path = Path(args.output_dir) / f"{args.summaries.stem}-_-r3-_-rsa_reranked-{args.model_name.replace('/', '-')}.json"
 
-    with open(output_path, "wb") as f:
-        dump(results, f)
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=4)
         
     # in case of scripted run, print the output path
     if args.scripted_run: print(output_path)
