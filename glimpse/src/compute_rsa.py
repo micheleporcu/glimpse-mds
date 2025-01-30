@@ -10,7 +10,7 @@ import sys, os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from rsasumm.rsa_reranker import RSAReranking
-
+import numpy as np
 
 DESC = """
 Compute the RSA matrices for all the set of multi-document samples and dump these along with additional information in a JSON file.
@@ -95,6 +95,16 @@ def compute_rsa(summaries: pd.DataFrame, model, tokenizer, device):
     return results
 
 
+def custom_json_serializer(obj):
+    if isinstance(obj, np.ndarray):  # Converte ndarray in lista
+        return obj.tolist()
+    if isinstance(obj, pd.DataFrame):  # Converte DataFrame in dizionario
+        return obj.to_dict()
+    if isinstance(obj, pd.Series):
+        return obj.tolist()
+    raise TypeError(f"Type {type(obj)} not serializable")
+
+
 def main():
     args = parse_args()
 
@@ -129,7 +139,12 @@ def main():
     for k, v in results.items():
         print("Lettura di results")
         print(k, type(v), v)
-        
+
+
+
+
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=4, default=custom_json_serializer)
     '''
     with open(output_path, "w") as f:
         json.dump(results, f, indent=4)
