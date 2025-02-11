@@ -105,6 +105,8 @@ def main():
 
     df.to_csv(path)
     '''
+
+    '''
     if path.exists():
     # Leggi il vecchio file CSV
         df_old = pd.read_csv(path)
@@ -116,6 +118,22 @@ def main():
     
     # Aggiungi nuove righe al DataFrame
         df = pd.concat([df_old, df], ignore_index=True)
+
+    df.to_csv(path, index=False)
+    '''
+    if path.exists():
+        df_old = pd.read_csv(path)
+    
+    # Verifica e aggiungi eventuali colonne mancanti
+        for col in df.columns:
+            if col not in df_old.columns:
+                df_old[col] = None
+
+    # Sostituisci i valori solo se necessario
+        for col in df.columns:
+            df_old[col].update(df[col])
+
+        df = df_old
 
     df.to_csv(path, index=False)
 
