@@ -88,7 +88,7 @@ def main():
     # check if exists already, if it does load it and add the new columns
 
     print(df)
-
+    '''
     if path.exists():
         df_old = pd.read_csv(path, index_col=0)
 
@@ -104,6 +104,21 @@ def main():
         df = df_old
 
     df.to_csv(path)
+    '''
+    if path.exists():
+    # Leggi il vecchio file CSV
+        df_old = pd.read_csv(path)
+    
+    # Aggiungi la nuova colonna solo se non esiste
+        for col in df.columns:
+            if col not in df_old.columns:
+                df_old[col] = None
+    
+    # Aggiungi nuove righe al DataFrame
+        df = pd.concat([df_old, df], ignore_index=True)
+
+    df.to_csv(path, index=False)
+
 
 
 if __name__ == "__main__":
